@@ -16,11 +16,15 @@ export const KEY = "56e1992f";
 export default function App() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [userRating, setUserRating] = useState("");
+
+  const [watched, setWatched] = useState(function () {
+    const storedValue = localStorage.getItem("watched");
+    return JSON.parse(storedValue);
+  });
 
   // select movie from list
   function handleSelectMovie(id) {
@@ -35,12 +39,21 @@ export default function App() {
   // add movie to watched list
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
+    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
 
   // remove movie from list
   function handleDeleteWatched(id) {
     setWatched((movies) => movies.filter((movie) => movie.imdbID !== id));
   }
+
+  // effect for local storage
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
+  );
 
   // Api for searched movie
   useEffect(
@@ -63,6 +76,7 @@ export default function App() {
           if (data.Response === "False") throw new Error(`Movie not found 🐦‍`);
 
           setMovies(data.Search);
+          // console.log(data.Search);
           setError("");
         } catch (err) {
           if (err.name !== "AbortError") setError(err.message);
@@ -71,7 +85,7 @@ export default function App() {
         }
       }
 
-      if (query.length <= 3) {
+      if (query.length < 3) {
         setMovies([]);
         setError("");
         return;

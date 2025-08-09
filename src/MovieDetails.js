@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { KEY } from "./App";
-import  Button  from "./Button";
-import  ErrorMessage  from "./ErrorMessage";
-import  Loader  from "./Loader";
+import Button from "./Button";
+import ErrorMessage from "./ErrorMessage";
+import Loader from "./Loader";
 import StarRating from "./StarRating";
 
 // movie details component
@@ -55,7 +55,7 @@ export default function MovieDetails({
       function callback(e) {
         if (e.code === "Escape") {
           onCloseMovie();
-          console.log("Closing");
+          // console.log("Closing");
         }
       }
 
