@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { KEY } from "./App";
 import Button from "./Button";
 import ErrorMessage from "./ErrorMessage";
 import Loader from "./Loader";
 import StarRating from "./StarRating";
+import { useKey } from "./useKey";
 
 // movie details component
 export default function MovieDetails({
@@ -11,12 +12,20 @@ export default function MovieDetails({
   selectedId,
   onCloseMovie,
   onAddWatched,
-  onUserRating,
-  userRating,
 }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState("");
   const [error, setError] = useState("");
+
+  const countRef = useRef(0);
+
+  useEffect(
+    function () {
+      if (userRating) countRef.current++;
+    },
+    [userRating]
+  );
 
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
   const watchedUserRating = watched.find(
@@ -43,6 +52,7 @@ export default function MovieDetails({
       imdbRating: Number(imdbRating),
       imdbID: selectedId,
       userRating,
+      countRatingDecisions: countRef.current,
     };
 
     onAddWatched(newWatchedMovie);
@@ -50,24 +60,7 @@ export default function MovieDetails({
   }
 
   // close movie details with escape key
-  useEffect(
-    function () {
-      function callback(e) {
-        if (e.code === "Escape") {
-          onCloseMovie();
-          // console.log("Closing");
-        }
-      }
-
-      document.addEventListener("keydown", callback);
-
-      //when you write this code it means if the MovieDetails component is not open this effect doesn't render
-      return function () {
-        document.removeEventListener("keydown", callback);
-      };
-    },
-    [onCloseMovie]
-  );
+  useKey("Escape", onCloseMovie);
 
   // Api for selected movie info
   useEffect(
@@ -141,7 +134,7 @@ export default function MovieDetails({
                   <StarRating
                     maxRating={10}
                     size="24"
-                    onUserRating={onUserRating}
+                    onUserRating={setUserRating}
                   />
                   {userRating > 0 && (
                     <Button className="btn-add" onClick={() => handleAdd()}>
